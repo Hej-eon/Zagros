@@ -9,15 +9,17 @@ function free(x,y){return x>0&&x<COLS-1&&y>0&&y<ROWS-1&&!board[y][x].solid&&!boa
 function bombAt(x,y){return bombs.some(b=>b.x===x&&b.y===y)}
 function randomFree(minX,minY){for(let i=0;i<100;i++){const x=minX+Math.floor(Math.random()*(COLS-minX-1)),y=minY+Math.floor(Math.random()*(ROWS-minY-1));if(free(x,y)&&!bombAt(x,y))return{x,y}}return{x:COLS-2,y:ROWS-2}}
 function reset(){board=Array.from({length:ROWS},(_,y)=>Array.from({length:COLS},(_,x)=>({solid:x===0||y===0||x===COLS-1||y===ROWS-1||x%2===0&&y%2===0,brick:false})));for(let y=1;y<ROWS-1;y++)for(let x=1;x<COLS-1;x++)if(!board[y][x].solid&&Math.random()<.42)board[y][x].brick=true;[[1,1],[1,2],[2,1],[COLS-2,ROWS-2],[COLS-2,ROWS-3],[COLS-3,ROWS-2]].forEach(([x,y])=>board[y][x].brick=false);
-player={x:1,y:1,px:1,py:1,bombsMax:1,range:1,moveCooldown:0,alive:true};bombs=[];flames=[];powerups=[];enemies=[];for(let i=0;i<4;i++){const p=randomFree(8,5);enemies.push({x:p.x,y:p.y,px:p.x,py:p.y,dir:Math.floor(Math.random()*4),think:0,moveCooldown:0,alive:true})}score=0;lives=3;timeLeft=120;updateHud()}
+player={x:1,y:1,px:1,py:1,bombsMax:1,range:1,moveCooldown:0,moveFromX:1,moveFromY:1,moveProgress:1,alive:true};bombs=[];flames=[];powerups=[];enemies=[];for(let i=0;i<4;i++){const p=randomFree(8,5);enemies.push({x:p.x,y:p.y,px:p.x,py:p.y,dir:Math.floor(Math.random()*4),think:0,moveCooldown:0,moveFromX:p.x,moveFromY:p.y,moveProgress:1,alive:true})}score=0;lives=3;timeLeft=120;updateHud()}
 function canEnter(x,y,currentX,currentY){if(!free(x,y))return false;return !bombAt(x,y)||(x===currentX&&y===currentY)}
-function stepEntity(e,dx,dy){if(!dx&&!dy)return false;const nx=e.x+dx,ny=e.y+dy;if(!canEnter(nx,ny,e.x,e.y))return false;e.x=nx;e.y=ny;e.px=nx;e.py=ny;return true}
+function stepEntity(e,dx,dy){if(!dx&&!dy||e.moveProgress<1)return false;const nx=e.x+dx,ny=e.y+dy;if(!canEnter(nx,ny,e.x,e.y))return false;e.moveFromX=e.px;e.moveFromY=e.py;e.x=nx;e.y=ny;e.moveProgress=0;return true}
+function updateVisualPosition(e,dt){if(e.moveProgress<1){e.moveProgress=Math.min(1,e.moveProgress+dt/.105);const t=e.moveProgress;const s=t*t*(3-2*t);e.px=e.moveFromX+(e.x-e.moveFromX)*s;e.py=e.moveFromY+(e.y-e.moveFromY)*s}else{e.px=e.x;e.py=e.y}}
 function placeBomb(){if(!running||bombs.filter(b=>b.owner===player).length>=player.bombsMax||bombAt(player.x,player.y))return;bombs.push({x:player.x,y:player.y,t:2.35,owner:player})}
 function explode(b){if(!bombs.includes(b))return;bombs=bombs.filter(x=>x!==b);const f={cells:[[b.x,b.y]],t:.45};flames.push(f);for(const[dX,dY]of dirs)for(let n=1;n<=player.range;n++){const x=b.x+dX*n,y=b.y+dY*n;if(board[y][x].solid)break;f.cells.push([x,y]);if(board[y][x].brick){board[y][x].brick=false;if(Math.random()<.3)powerups.push({x,y,type:Math.random()<.5?'range':'bomb'});score+=10;break}}}
 function damage(){if(!player.alive)return;player.alive=false;lives--;updateHud();setTimeout(()=>{if(lives<=0)end(false);else{player.alive=true;player.px=player.x=1;player.py=player.y=1}},650)}
 function checkCollisions(){const danger=new Set(flames.flatMap(f=>f.cells.map(c=>c.join(','))));if(danger.has(player.x+','+player.y))damage();for(const e of enemies){if(danger.has(e.x+','+e.y))e.alive=false;if(e.alive&&e.x===player.x&&e.y===player.y)damage()}enemies=enemies.filter(e=>e.alive);for(const p of powerups)if(p.x===player.x&&p.y===player.y){score+=50;if(p.type==='range')player.range++;else player.bombsMax++;p.taken=true}powerups=powerups.filter(p=>!p.taken)}
 function update(dt){if(!running)return;timerAcc+=dt;if(timerAcc>=1){timerAcc-=1;timeLeft--;updateHud();if(timeLeft<=0)end(false)}
 if(player.alive){
+  updateVisualPosition(player,dt);
   player.moveCooldown-=dt;
   if(player.moveCooldown<=0){
     let dx=(keys.ArrowRight||keys.d)?1:(keys.ArrowLeft||keys.a)?-1:0;
@@ -28,6 +30,7 @@ if(player.alive){
   }
 }
 for(const e of enemies){
+  updateVisualPosition(e,dt);
   e.think-=dt;e.moveCooldown-=dt;
   if(e.moveCooldown<=0){
     if(e.think<=0){
