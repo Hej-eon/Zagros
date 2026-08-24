@@ -9,7 +9,7 @@ function free(x,y){return x>0&&x<COLS-1&&y>0&&y<ROWS-1&&!board[y][x].solid&&!boa
 function bombAt(x,y){return bombs.some(b=>b.x===x&&b.y===y)}
 function randomFree(minX,minY){for(let i=0;i<100;i++){const x=minX+Math.floor(Math.random()*(COLS-minX-1)),y=minY+Math.floor(Math.random()*(ROWS-minY-1));if(free(x,y)&&!bombAt(x,y))return{x,y}}return{x:COLS-2,y:ROWS-2}}
 function reset(){board=Array.from({length:ROWS},(_,y)=>Array.from({length:COLS},(_,x)=>({solid:x===0||y===0||x===COLS-1||y===ROWS-1||x%2===0&&y%2===0,brick:false})));for(let y=1;y<ROWS-1;y++)for(let x=1;x<COLS-1;x++)if(!board[y][x].solid&&Math.random()<.42)board[y][x].brick=true;[[1,1],[1,2],[2,1],[COLS-2,ROWS-2],[COLS-2,ROWS-3],[COLS-3,ROWS-2]].forEach(([x,y])=>board[y][x].brick=false);
-player={x:1,y:1,px:1,py:1,bombsMax:1,range:1,speed:4.2,alive:true};bombs=[];flames=[];powerups=[];enemies=[];for(let i=0;i<4;i++){const p=randomFree(8,5);enemies.push({x:p.x,y:p.y,px:p.x,py:p.y,dir:Math.floor(Math.random()*4),think:0,alive:true})}score=0;lives=3;timeLeft=120;updateHud()}
+player={x:1,y:1,px:1,py:1,bombsMax:1,range:1,speed:4.2,alive:true};bombs=[];flames=[];powerups=[];enemies=[];for(let i=0;i<4;i++){const p=randomFree(8,5);enemies.push({x:p.x,y:p.y,px:p.x,py:p.y,dir:Math.floor(Math.random()*4),think:0,speed:1.65,alive:true})}score=0;lives=3;timeLeft=120;updateHud()}
 function canEnter(x,y,currentX,currentY){if(!free(x,y))return false;return !bombAt(x,y)||(x===currentX&&y===currentY)}
 function moveEntity(e,dx,dy,dt){let nx=e.px+dx*e.speed*dt,ny=e.py+dy*e.speed*dt;const cx=Math.round(e.px),cy=Math.round(e.py),tx=Math.round(nx),ty=Math.round(ny);if(canEnter(tx,cy,cx,cy))e.px=nx;const cx2=Math.round(e.px),ty2=Math.round(ny);if(canEnter(cx2,ty2,cx2,Math.round(e.py)))e.py=ny;e.x=Math.round(e.px);e.y=Math.round(e.py)}
 function placeBomb(){if(!running||bombs.filter(b=>b.owner===player).length>=player.bombsMax||bombAt(player.x,player.y))return;bombs.push({x:player.x,y:player.y,t:2.35,owner:player})}
@@ -23,7 +23,7 @@ for(const e of enemies){
     const options=dirs.map((d,i)=>({d,i,x:e.x+d[0],y:e.y+d[1]}))
       .filter(o=>free(o.x,o.y)&&!bombAt(o.x,o.y));
     if(options.length){
-      const chase=Math.random()<0.35;
+      const chase=Math.random()<0.2;
       if(chase&&player.alive){
         options.sort((a,b)=>{
           const da=Math.abs(a.x-player.x)+Math.abs(a.y-player.y);
@@ -34,7 +34,7 @@ for(const e of enemies){
       }else{
         e.dir=options[Math.floor(Math.random()*options.length)].i;
       }
-      e.think=.65+Math.random()*1.1;
+      e.think=.9+Math.random()*1.4;
     }else{
       e.think=.25;
     }
