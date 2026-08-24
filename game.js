@@ -53,23 +53,23 @@ function end(win){running=false;title.textContent=win?'ARENA CLEARED':'GAME OVER
 function updateHud(){scoreEl.textContent=score;livesEl.textContent=lives;timeEl.textContent=timeLeft}
 function drawZagrosHero(x,y){const X=Math.round(x*TILE),Y=Math.round(y*TILE);ctx.imageSmoothingEnabled=false;
 const r=(color,a,b,w,h)=>{ctx.fillStyle=color;ctx.fillRect(X+a,Y+b,w,h)};
-/* Zagros Hero — compact 32-bit-inspired pixel sprite */
-r('#171a18',13,39,8,4);r('#171a18',28,39,8,4);
-r('#6b3f24',11,40,11,4);r('#6b3f24',27,40,11,4);
-r('#2a3034',14,30,22,10);r('#17202a',17,32,7,8);r('#17202a',27,32,7,8);
-r('#d9a13a',22,28,5,7);r('#e8b83f',21,34,7,3);
-r('#b33a3a',12,25,11,10);r('#b33a3a',25,25,11,10);
-r('#fff1d2',13,24,9,6);r('#fff1d2',26,24,9,6);
-r('#f0d7a1',16,14,17,12);r('#e8b83f',21,25,6,5);
-r('#3a2020',18,19,3,3);r('#3a2020',28,19,3,3);
-r('#f7e2b4',15,12,19,5);r('#b33a3a',13,10,23,5);
-r('#fff1d2',16,9,18,3);r('#b33a3a',12,12,4,7);r('#b33a3a',33,12,4,7);
-r('#f4d35e',15,8,20,3);r('#8f2f35',18,6,16,3);
-r('#f4d35e',14,7,4,3);r('#f4d35e',29,7,5,3);
-r('#f7e2b4',19,16,3,2);r('#f7e2b4',28,16,3,2);
-r('#b33a3a',11,18,5,5);r('#b33a3a',33,18,5,5);
-r('#e4b43c',18,27,4,4);r('#e4b43c',27,27,4,4);
-}function draw(){ctx.clearRect(0,0,COLS*TILE,ROWS*TILE);for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++){ctx.fillStyle=(x+y)%2?'#20352d':'#1b3029';ctx.fillRect(x*TILE,y*TILE,TILE,TILE);if(board[y][x].solid){ctx.fillStyle='#3b4a3d';ctx.fillRect(x*TILE+1,y*TILE+1,TILE-2,TILE-2);ctx.fillStyle='#64705b';ctx.fillRect(x*TILE+5,y*TILE+5,TILE-10,6);ctx.fillStyle='#2a342d';ctx.fillRect(x*TILE+5,y*TILE+32,TILE-10,6);ctx.fillRect(x*TILE+8,y*TILE+12,5,17);ctx.fillRect(x*TILE+35,y*TILE+12,5,17)}else if(board[y][x].brick){ctx.fillStyle='#9a5b28';ctx.fillRect(x*TILE+3,y*TILE+3,TILE-6,TILE-6);ctx.fillStyle='#c4873b';ctx.fillRect(x*TILE+7,y*TILE+7,TILE-14,5)}}for(const p of powerups){ctx.fillStyle=p.type==='range'?'#2ca58d':'#e4b43c';ctx.beginPath();ctx.arc(p.x*TILE+24,p.y*TILE+24,10,0,Math.PI*2);ctx.fill();ctx.fillStyle='#07111f';ctx.font='bold 15px sans-serif';ctx.textAlign='center';ctx.fillText(p.type==='range'?'R':'B',p.x*TILE+24,p.y*TILE+29)}for(const b of bombs){ctx.fillStyle='#161a18';ctx.beginPath();ctx.arc(b.x*TILE+24,b.y*TILE+27,14,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#e4b43c';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(b.x*TILE+32,b.y*TILE+15);ctx.lineTo(b.x*TILE+38,b.y*TILE+7);ctx.stroke()}for(const f of flames){ctx.fillStyle='#d96b27';for(const[cx,cy]of f.cells){ctx.fillRect(cx*TILE+7,cy*TILE+7,TILE-14,TILE-14);ctx.fillStyle='#f0c04a';ctx.fillRect(cx*TILE+15,cy*TILE+15,TILE-30,TILE-30);ctx.fillStyle='#d96b27'}}for(const e of enemies){ctx.fillStyle='#8d2f36';ctx.beginPath();ctx.arc(e.px*TILE+24,e.py*TILE+25,15,0,Math.PI*2);ctx.fill();ctx.fillStyle='#fff';ctx.fillRect(e.px*TILE+15,e.py*TILE+19,5,5);ctx.fillRect(e.px*TILE+28,e.py*TILE+19,5,5)}if(player.alive){drawZagrosHero(player.px,player.py)}}
+r('#5a351f',14,38,9,5);r('#5a351f',27,38,9,5);
+r('#242b2d',15,29,19,10);r('#182025',18,31,5,7);r('#182025',27,31,5,7);
+r('#d8a32d',21,28,7,7);
+r('#b43a3a',12,24,11,11);r('#b43a3a',25,24,11,11);
+r('#fff0cf',14,22,8,7);r('#fff0cf',26,22,8,7);
+r('#f0d5a0',16,13,17,12);r('#3a2525',18,18,3,3);r('#3a2525',28,18,3,3);
+r('#fff0cf',15,11,19,4);r('#b43a3a',12,9,24,6);
+r('#f3d35b',15,7,19,3);r('#fff0cf',18,8,12,3);
+r('#b43a3a',12,12,4,7);r('#b43a3a',32,12,4,7);
+r('#e8b83f',21,24,6,5);
+}function draw()function draw(){ctx.clearRect(0,0,COLS*TILE,ROWS*TILE);for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++){ctx.fillStyle=(x+y)%2?'#20352d':'#1b3029';ctx.fillRect(x*TILE,y*TILE,TILE,TILE);if(board[y][x].solid){ctx.fillStyle='#3b4a3d';ctx.fillRect(x*TILE+1,y*TILE+1,TILE-2,TILE-2);ctx.fillStyle='#64705b';ctx.fillRect(x*TILE+5,y*TILE+5,TILE-10,6);ctx.fillStyle='#2a342d';ctx.fillRect(x*TILE+5,y*TILE+32,TILE-10,6);ctx.fillRect(x*TILE+8,y*TILE+12,5,17);ctx.fillRect(x*TILE+35,y*TILE+12,5,17)}else if(board[y][x].brick){const X=x*TILE,Y=y*TILE;
+ctx.fillStyle='#6f3d1d';ctx.fillRect(X+2,Y+2,TILE-4,TILE-4);
+ctx.fillStyle='#a8642d';ctx.fillRect(X+5,Y+5,TILE-10,TILE-10);
+ctx.fillStyle='#d08a3d';ctx.fillRect(X+7,Y+7,TILE-14,4);
+ctx.fillStyle='#70401f';ctx.fillRect(X+7,Y+34,TILE-14,4);
+ctx.fillStyle='#613719';ctx.fillRect(X+8,Y+11,4,23);ctx.fillRect(X+36,Y+11,4,23);
+ctx.strokeStyle='#c47a35';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(X+10,Y+10);ctx.lineTo(X+38,Y+38);ctx.moveTo(X+38,Y+10);ctx.lineTo(X+10,Y+38);ctx.stroke();ctx.fillStyle='#e0a052';ctx.fillRect(X+7,Y+6,TILE-14,2)}}for(const p of powerups){ctx.fillStyle=p.type==='range'?'#2ca58d':'#e4b43c';ctx.beginPath();ctx.arc(p.x*TILE+24,p.y*TILE+24,10,0,Math.PI*2);ctx.fill();ctx.fillStyle='#07111f';ctx.font='bold 15px sans-serif';ctx.textAlign='center';ctx.fillText(p.type==='range'?'R':'B',p.x*TILE+24,p.y*TILE+29)}for(const b of bombs){ctx.fillStyle='#161a18';ctx.beginPath();ctx.arc(b.x*TILE+24,b.y*TILE+27,14,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#e4b43c';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(b.x*TILE+32,b.y*TILE+15);ctx.lineTo(b.x*TILE+38,b.y*TILE+7);ctx.stroke()}for(const f of flames){ctx.fillStyle='#d96b27';for(const[cx,cy]of f.cells){ctx.fillRect(cx*TILE+7,cy*TILE+7,TILE-14,TILE-14);ctx.fillStyle='#f0c04a';ctx.fillRect(cx*TILE+15,cy*TILE+15,TILE-30,TILE-30);ctx.fillStyle='#d96b27'}}for(const e of enemies){ctx.fillStyle='#8d2f36';ctx.beginPath();ctx.arc(e.px*TILE+24,e.py*TILE+25,15,0,Math.PI*2);ctx.fill();ctx.fillStyle='#fff';ctx.fillRect(e.px*TILE+15,e.py*TILE+19,5,5);ctx.fillRect(e.px*TILE+28,e.py*TILE+19,5,5)}if(player.alive){drawZagrosHero(player.px,player.py)}}
 function loop(t){const dt=Math.min((t-last)/1000,.05);last=t;update(dt);draw();requestAnimationFrame(loop)}requestAnimationFrame(loop);
 addEventListener('keydown',e=>{keys[e.key]=true;if(e.code==='Space'){e.preventDefault();placeBomb()}});addEventListener('keyup',e=>keys[e.key]=false);
 document.querySelectorAll('[data-key]').forEach(b=>{const k=b.dataset.key;b.addEventListener('pointerdown',e=>{e.preventDefault();keys[k]=true;if(k==='Space')placeBomb()});b.addEventListener('pointerup',()=>keys[k]=false);b.addEventListener('pointerleave',()=>keys[k]=false)});
