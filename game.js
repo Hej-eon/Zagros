@@ -24,4 +24,5 @@ function draw(){ctx.clearRect(0,0,COLS*TILE,ROWS*TILE);for(let y=0;y<ROWS;y++)fo
 function loop(t){const dt=Math.min((t-last)/1000,.05);last=t;update(dt);draw();requestAnimationFrame(loop)}requestAnimationFrame(loop);
 addEventListener('keydown',e=>{keys[e.key]=true;if(e.code==='Space'){e.preventDefault();placeBomb()}});addEventListener('keyup',e=>keys[e.key]=false);
 document.querySelectorAll('[data-key]').forEach(b=>{const k=b.dataset.key;b.addEventListener('pointerdown',e=>{e.preventDefault();keys[k]=true;if(k==='Space')placeBomb()});b.addEventListener('pointerup',()=>keys[k]=false);b.addEventListener('pointerleave',()=>keys[k]=false)});
-startBtn.onclick=()=>{reset();running=true;overlay.classList.add('hidden')};reset();draw();
+function startGame(){try{reset();running=true;overlay.classList.add('hidden');last=performance.now();}catch(err){console.error('Zagros start error:',err);text.textContent='Game error: '+err.message;}}
+startBtn.addEventListener('click',startGame);startBtn.addEventListener('pointerup',startGame);addEventListener('keydown',e=>{if(e.key==='Enter'&& !running)startGame()});reset();draw();
