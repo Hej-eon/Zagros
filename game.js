@@ -9,39 +9,41 @@ function free(x,y){return x>0&&x<COLS-1&&y>0&&y<ROWS-1&&!board[y][x].solid&&!boa
 function bombAt(x,y){return bombs.some(b=>b.x===x&&b.y===y)}
 function randomFree(minX,minY){for(let i=0;i<100;i++){const x=minX+Math.floor(Math.random()*(COLS-minX-1)),y=minY+Math.floor(Math.random()*(ROWS-minY-1));if(free(x,y)&&!bombAt(x,y))return{x,y}}return{x:COLS-2,y:ROWS-2}}
 function reset(){board=Array.from({length:ROWS},(_,y)=>Array.from({length:COLS},(_,x)=>({solid:x===0||y===0||x===COLS-1||y===ROWS-1||x%2===0&&y%2===0,brick:false})));for(let y=1;y<ROWS-1;y++)for(let x=1;x<COLS-1;x++)if(!board[y][x].solid&&Math.random()<.42)board[y][x].brick=true;[[1,1],[1,2],[2,1],[COLS-2,ROWS-2],[COLS-2,ROWS-3],[COLS-3,ROWS-2]].forEach(([x,y])=>board[y][x].brick=false);
-player={x:1,y:1,px:1,py:1,bombsMax:1,range:1,speed:4.2,alive:true};bombs=[];flames=[];powerups=[];enemies=[];for(let i=0;i<4;i++){const p=randomFree(8,5);enemies.push({x:p.x,y:p.y,px:p.x,py:p.y,dir:Math.floor(Math.random()*4),think:0,speed:1.65,alive:true})}score=0;lives=3;timeLeft=120;updateHud()}
+player={x:1,y:1,px:1,py:1,bombsMax:1,range:1,moveCooldown:0,alive:true};bombs=[];flames=[];powerups=[];enemies=[];for(let i=0;i<4;i++){const p=randomFree(8,5);enemies.push({x:p.x,y:p.y,px:p.x,py:p.y,dir:Math.floor(Math.random()*4),think:0,moveCooldown:0,alive:true})}score=0;lives=3;timeLeft=120;updateHud()}
 function canEnter(x,y,currentX,currentY){if(!free(x,y))return false;return !bombAt(x,y)||(x===currentX&&y===currentY)}
-function moveEntity(e,dx,dy,dt){let nx=e.px+dx*e.speed*dt,ny=e.py+dy*e.speed*dt;const cx=Math.round(e.px),cy=Math.round(e.py),tx=Math.round(nx),ty=Math.round(ny);if(canEnter(tx,cy,cx,cy))e.px=nx;const cx2=Math.round(e.px),ty2=Math.round(ny);if(canEnter(cx2,ty2,cx2,Math.round(e.py)))e.py=ny;e.x=Math.round(e.px);e.y=Math.round(e.py)}
+function stepEntity(e,dx,dy){if(!dx&&!dy)return false;const nx=e.x+dx,ny=e.y+dy;if(!canEnter(nx,ny,e.x,e.y))return false;e.x=nx;e.y=ny;e.px=nx;e.py=ny;return true}
 function placeBomb(){if(!running||bombs.filter(b=>b.owner===player).length>=player.bombsMax||bombAt(player.x,player.y))return;bombs.push({x:player.x,y:player.y,t:2.35,owner:player})}
 function explode(b){if(!bombs.includes(b))return;bombs=bombs.filter(x=>x!==b);const f={cells:[[b.x,b.y]],t:.45};flames.push(f);for(const[dX,dY]of dirs)for(let n=1;n<=player.range;n++){const x=b.x+dX*n,y=b.y+dY*n;if(board[y][x].solid)break;f.cells.push([x,y]);if(board[y][x].brick){board[y][x].brick=false;if(Math.random()<.3)powerups.push({x,y,type:Math.random()<.5?'range':'bomb'});score+=10;break}}}
 function damage(){if(!player.alive)return;player.alive=false;lives--;updateHud();setTimeout(()=>{if(lives<=0)end(false);else{player.alive=true;player.px=player.x=1;player.py=player.y=1}},650)}
 function checkCollisions(){const danger=new Set(flames.flatMap(f=>f.cells.map(c=>c.join(','))));if(danger.has(player.x+','+player.y))damage();for(const e of enemies){if(danger.has(e.x+','+e.y))e.alive=false;if(e.alive&&e.x===player.x&&e.y===player.y)damage()}enemies=enemies.filter(e=>e.alive);for(const p of powerups)if(p.x===player.x&&p.y===player.y){score+=50;if(p.type==='range')player.range++;else player.bombsMax++;p.taken=true}powerups=powerups.filter(p=>!p.taken)}
-function update(dt){if(!running)return;timerAcc+=dt;if(timerAcc>=1){timerAcc-=1;timeLeft--;updateHud();if(timeLeft<=0)end(false)}if(player.alive){let dx=(keys.ArrowRight||keys.d)?1:(keys.ArrowLeft||keys.a)?-1:0,dy=(keys.ArrowDown||keys.s)?1:(keys.ArrowUp||keys.w)?-1:0;if(dx&&dy)dy=0;moveEntity(player,dx,dy,dt)}
-for(const e of enemies){
-  e.think-=dt;
-  if(e.think<=0){
-    const options=dirs.map((d,i)=>({d,i,x:e.x+d[0],y:e.y+d[1]}))
-      .filter(o=>free(o.x,o.y)&&!bombAt(o.x,o.y));
-    if(options.length){
-      const chase=Math.random()<0.2;
-      if(chase&&player.alive){
-        options.sort((a,b)=>{
-          const da=Math.abs(a.x-player.x)+Math.abs(a.y-player.y);
-          const db=Math.abs(b.x-player.x)+Math.abs(b.y-player.y);
-          return da-db;
-        });
-        e.dir=options[0].i;
-      }else{
-        e.dir=options[Math.floor(Math.random()*options.length)].i;
-      }
-      e.think=.9+Math.random()*1.4;
-    }else{
-      e.think=.25;
-    }
+function update(dt){if(!running)return;timerAcc+=dt;if(timerAcc>=1){timerAcc-=1;timeLeft--;updateHud();if(timeLeft<=0)end(false)}
+if(player.alive){
+  player.moveCooldown-=dt;
+  if(player.moveCooldown<=0){
+    let dx=(keys.ArrowRight||keys.d)?1:(keys.ArrowLeft||keys.a)?-1:0;
+    let dy=(keys.ArrowDown||keys.s)?1:(keys.ArrowUp||keys.w)?-1:0;
+    if(dx&&dy)dy=0;
+    if(stepEntity(player,dx,dy))player.moveCooldown=.13;
+    else if(dx||dy)player.moveCooldown=.08;
   }
-  const[dX,dY]=dirs[e.dir];
-  if(free(e.x+dX,e.y+dY)&&!bombAt(e.x+dX,e.y+dY)) moveEntity(e,dX,dY,dt);
-  else e.think=0;
+}
+for(const e of enemies){
+  e.think-=dt;e.moveCooldown-=dt;
+  if(e.moveCooldown<=0){
+    if(e.think<=0){
+      const options=dirs.map((d,i)=>({d,i,x:e.x+d[0],y:e.y+d[1]})).filter(o=>free(o.x,o.y)&&!bombAt(o.x,o.y));
+      if(options.length){
+        if(Math.random()<0.2&&player.alive){
+          options.sort((a,b)=>(Math.abs(a.x-player.x)+Math.abs(a.y-player.y))-(Math.abs(b.x-player.x)+Math.abs(b.y-player.y)));
+          e.dir=options[0].i;
+        }else e.dir=options[Math.floor(Math.random()*options.length)].i;
+        e.think=.9+Math.random()*1.4;
+      }else e.think=.25;
+    }
+    const[dX,dY]=dirs[e.dir];
+    if(stepEntity(e,dX,dY))e.moveCooldown=.18;
+    else {e.think=0;e.moveCooldown=.08;}
+  }
 }
 for(const b of [...bombs]){b.t-=dt;if(b.t<=0)explode(b)}for(const f of flames)f.t-=dt;flames=flames.filter(f=>f.t>0);for(const b of [...bombs])if(flames.some(f=>f.cells.some(c=>c[0]===b.x&&c[1]===b.y)))explode(b);checkCollisions();if(enemies.length===0)end(true)}
 function end(win){running=false;title.textContent=win?'ARENA CLEARED':'GAME OVER';text.textContent=(win?'Final score: ':'Final score: ')+score+'. '+(win?'The Zagros arena is yours.':'Survive longer next run.');startBtn.textContent='PLAY AGAIN';overlay.classList.remove('hidden')}
