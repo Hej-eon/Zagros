@@ -63,7 +63,7 @@ r('#fff0cf',15,11,19,4);r('#b43a3a',12,9,24,6);
 r('#f3d35b',15,7,19,3);r('#fff0cf',18,8,12,3);
 r('#b43a3a',12,12,4,7);r('#b43a3a',32,12,4,7);
 r('#e8b83f',21,24,6,5);
-}function draw()function draw(){ctx.clearRect(0,0,COLS*TILE,ROWS*TILE);for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++){ctx.fillStyle=(x+y)%2?'#20352d':'#1b3029';ctx.fillRect(x*TILE,y*TILE,TILE,TILE);if(board[y][x].solid){ctx.fillStyle='#3b4a3d';ctx.fillRect(x*TILE+1,y*TILE+1,TILE-2,TILE-2);ctx.fillStyle='#64705b';ctx.fillRect(x*TILE+5,y*TILE+5,TILE-10,6);ctx.fillStyle='#2a342d';ctx.fillRect(x*TILE+5,y*TILE+32,TILE-10,6);ctx.fillRect(x*TILE+8,y*TILE+12,5,17);ctx.fillRect(x*TILE+35,y*TILE+12,5,17)}else if(board[y][x].brick){const X=x*TILE,Y=y*TILE;
+}function draw(){ctx.clearRect(0,0,COLS*TILE,ROWS*TILE);for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++){ctx.fillStyle=(x+y)%2?'#20352d':'#1b3029';ctx.fillRect(x*TILE,y*TILE,TILE,TILE);if(board[y][x].solid){ctx.fillStyle='#3b4a3d';ctx.fillRect(x*TILE+1,y*TILE+1,TILE-2,TILE-2);ctx.fillStyle='#64705b';ctx.fillRect(x*TILE+5,y*TILE+5,TILE-10,6);ctx.fillStyle='#2a342d';ctx.fillRect(x*TILE+5,y*TILE+32,TILE-10,6);ctx.fillRect(x*TILE+8,y*TILE+12,5,17);ctx.fillRect(x*TILE+35,y*TILE+12,5,17)}else if(board[y][x].brick){const X=x*TILE,Y=y*TILE;
 ctx.fillStyle='#6f3d1d';ctx.fillRect(X+2,Y+2,TILE-4,TILE-4);
 ctx.fillStyle='#a8642d';ctx.fillRect(X+5,Y+5,TILE-10,TILE-10);
 ctx.fillStyle='#d08a3d';ctx.fillRect(X+7,Y+7,TILE-14,4);
